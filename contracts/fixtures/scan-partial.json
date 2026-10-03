@@ -1,0 +1,198 @@
+{
+  "scan": {
+    "id": "scan_8f3a2c1d",
+    "status": "partial",
+    "source": {
+      "type": "github",
+      "repoUrl": "https://github.com/exemplo/loja-demo",
+      "ref": "main",
+      "commitSha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+    },
+    "stages": [
+      { "name": "clone", "status": "done", "startedAt": "2026-10-01T14:02:11Z", "finishedAt": "2026-10-01T14:02:19Z" },
+      { "name": "secrets", "status": "done", "startedAt": "2026-10-01T14:02:19Z", "finishedAt": "2026-10-01T14:02:24Z" },
+      { "name": "dependencies", "status": "done", "startedAt": "2026-10-01T14:02:19Z", "finishedAt": "2026-10-01T14:02:27Z" },
+      { "name": "code_patterns", "status": "done", "startedAt": "2026-10-01T14:02:19Z", "finishedAt": "2026-10-01T14:02:41Z" },
+      {
+        "name": "ai_triage",
+        "status": "failed",
+        "startedAt": "2026-10-01T14:02:41Z",
+        "finishedAt": "2026-10-01T14:03:41Z",
+        "error": { "code": "LLM_TIMEOUT", "message": "A análise com IA excedeu o tempo limite." }
+      }
+    ],
+    "coverage": {
+      "languages": [
+        { "name": "Python", "level": "full" },
+        { "name": "JavaScript", "level": "full" },
+        { "name": "Dockerfile", "level": "partial" }
+      ],
+      "filesScanned": 47,
+      "filesSkipped": 3,
+      "notes": [
+        "3 arquivos ignorados por tamanho (bundles minificados).",
+        "Dockerfile: apenas segredos e dependências foram analisados."
+      ]
+    },
+    "createdAt": "2026-10-01T14:02:11Z",
+    "finishedAt": "2026-10-01T14:03:41Z",
+    "summary": {
+      "score": 75,
+      "scoreBreakdown": [
+        { "severity": "critical", "count": 1, "pointsLost": 10 },
+        { "severity": "high", "count": 3, "pointsLost": 13 },
+        { "severity": "medium", "count": 1, "pointsLost": 2 },
+        { "severity": "low", "count": 0, "pointsLost": 0 }
+      ],
+      "bySeverity": { "critical": 1, "high": 3, "medium": 1, "low": 0 },
+      "byCategory": { "secrets": 1, "injection": 1, "dependencies": 1, "dangerous_practices": 2 },
+      "byFolder": [
+        { "path": "backend", "count": 3, "maxSeverity": "critical" },
+        { "path": "server", "count": 2, "maxSeverity": "high" }
+      ]
+    },
+    "signature": "ed25519:MEUCIQDexemplo0000000000000000000000000000000000"
+  },
+  "findings": [
+    {
+      "id": "fnd_001",
+      "fingerprint": "9c1f4e7a2b3d5c6e",
+      "scanId": "scan_8f3a2c1d",
+      "tool": "gitleaks",
+      "ruleId": "aws-access-token",
+      "category": "secrets",
+      "title": "Chave de acesso AWS exposta no código",
+      "severity": "critical",
+      "confidence": "high",
+      "cwe": ["CWE-798"],
+      "owasp": ["A07:2021"],
+      "location": {
+        "file": "backend/config.py",
+        "startLine": 12,
+        "endLine": 12,
+        "snippet": "import os\n\nDEBUG = False\nAWS_ACCESS_KEY_ID = \"AKIA****************\"\nAWS_REGION = \"sa-east-1\"",
+        "snippetMasked": true,
+        "snippetStartLine": 10
+      },
+      "triage": { "status": "open" },
+      "ai": {
+        "status": "ready",
+        "verdict": "likely_exploitable",
+        "explanation": "Uma credencial AWS gravada no código fica no histórico do Git e pode ser usada por qualquer pessoa com acesso ao repositório. **Revogue a chave agora** e gere uma nova; apenas trocar o código não basta.",
+        "fix": {
+          "description": "Ler a credencial de uma variável de ambiente.",
+          "patch": "--- a/backend/config.py\n+++ b/backend/config.py\n@@ -12,1 +12,1 @@\n-AWS_ACCESS_KEY_ID = \"AKIA****************\"\n+AWS_ACCESS_KEY_ID = os.environ[\"AWS_ACCESS_KEY_ID\"]"
+        },
+        "disclaimer": "Sugestão gerada por IA. Revise antes de aplicar."
+      }
+    },
+    {
+      "id": "fnd_002",
+      "fingerprint": "3b8d1a6f7c2e4d90",
+      "scanId": "scan_8f3a2c1d",
+      "tool": "semgrep",
+      "ruleId": "python.flask.security.injection.tainted-sql-string",
+      "category": "injection",
+      "title": "SQL Injection por concatenação de string",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": ["CWE-89"],
+      "owasp": ["A03:2021"],
+      "location": {
+        "file": "backend/routes/users.py",
+        "startLine": 34,
+        "endLine": 34,
+        "snippet": "@bp.route(\"/users/<username>\")\ndef get_user(username):\n    query = f\"SELECT * FROM users WHERE name = '{username}'\"\n    return db.execute(query).fetchone()",
+        "snippetMasked": false,
+        "snippetStartLine": 32
+      },
+      "triage": { "status": "open" },
+      "ai": {
+        "status": "ready",
+        "verdict": "likely_exploitable",
+        "explanation": "O parâmetro `username` vem da URL e é inserido direto na consulta. Um valor como `' OR '1'='1` altera a lógica do SQL. Use **consultas parametrizadas**.",
+        "fix": {
+          "description": "Trocar a f-string por uma consulta parametrizada.",
+          "patch": "--- a/backend/routes/users.py\n+++ b/backend/routes/users.py\n@@ -34,2 +34,1 @@\n-    query = f\"SELECT * FROM users WHERE name = '{username}'\"\n-    return db.execute(query).fetchone()\n+    return db.execute(\"SELECT * FROM users WHERE name = ?\", (username,)).fetchone()"
+        },
+        "disclaimer": "Sugestão gerada por IA. Revise antes de aplicar."
+      }
+    },
+    {
+      "id": "fnd_003",
+      "fingerprint": "5e2a9c4b1d7f8a03",
+      "scanId": "scan_8f3a2c1d",
+      "tool": "osv",
+      "ruleId": "GHSA-35jh-r3h4-6jhm",
+      "category": "dependencies",
+      "title": "lodash 4.17.15 vulnerável a command injection",
+      "severity": "high",
+      "confidence": "high",
+      "cwe": ["CWE-77"],
+      "owasp": ["A06:2021"],
+      "dependency": {
+        "name": "lodash",
+        "installedVersion": "4.17.15",
+        "fixedVersion": "4.17.21",
+        "advisoryIds": ["GHSA-35jh-r3h4-6jhm", "CVE-2021-23337"]
+      },
+      "triage": { "status": "open" },
+      "ai": {
+        "status": "ready",
+        "verdict": "needs_review",
+        "explanation": "A falha afeta o uso de `_.template` com entrada não confiável. Se o projeto não usa essa função, o risco real é menor, mas a atualização é simples e segura.",
+        "fix": {
+          "description": "Atualizar lodash para a versão corrigida.",
+          "patch": "--- a/server/package.json\n+++ b/server/package.json\n@@ -8,1 +8,1 @@\n-    \"lodash\": \"4.17.15\"\n+    \"lodash\": \"4.17.21\""
+        },
+        "disclaimer": "Sugestão gerada por IA. Revise antes de aplicar."
+      }
+    },
+    {
+      "id": "fnd_004",
+      "fingerprint": "7d4c2e9a0b1f3c58",
+      "scanId": "scan_8f3a2c1d",
+      "tool": "semgrep",
+      "ruleId": "javascript.express.security.express-eval",
+      "category": "dangerous_practices",
+      "title": "Uso de eval() com entrada do usuário",
+      "severity": "high",
+      "confidence": "medium",
+      "cwe": ["CWE-95"],
+      "owasp": ["A03:2021"],
+      "location": {
+        "file": "server/index.js",
+        "startLine": 21,
+        "endLine": 21,
+        "snippet": "app.get(\"/calc\", (req, res) => {\n  // calcula a expressão enviada pelo cliente\n  const result = eval(req.query.expr);\n  res.json({ result });\n});",
+        "snippetMasked": false,
+        "snippetStartLine": 19
+      },
+      "triage": { "status": "open" },
+      "ai": { "status": "failed" }
+    },
+    {
+      "id": "fnd_005",
+      "fingerprint": "1a6e8b3d5c9f2e47",
+      "scanId": "scan_8f3a2c1d",
+      "tool": "semgrep",
+      "ruleId": "python.lang.security.insecure-hash-algorithms-md5",
+      "category": "dangerous_practices",
+      "title": "Hash MD5 usado para senhas",
+      "severity": "medium",
+      "confidence": "high",
+      "cwe": ["CWE-327"],
+      "owasp": ["A02:2021"],
+      "location": {
+        "file": "backend/utils/hash.py",
+        "startLine": 8,
+        "endLine": 8,
+        "snippet": "import hashlib\n\ndef hash_password(password):\n    return hashlib.md5(password.encode()).hexdigest()\n",
+        "snippetMasked": false,
+        "snippetStartLine": 5
+      },
+      "triage": { "status": "open" },
+      "ai": { "status": "skipped" }
+    }
+  ]
+}
