@@ -39,10 +39,10 @@
     "summary": {
       "score": 75,
       "scoreBreakdown": [
-        { "severity": "critical", "count": 1, "pointsLost": 10 },
-        { "severity": "high", "count": 3, "pointsLost": 13 },
-        { "severity": "medium", "count": 1, "pointsLost": 2 },
-        { "severity": "low", "count": 0, "pointsLost": 0 }
+        { "severity": "critical", "count": 1, "cappedCount": 0, "pointsLost": 10 },
+        { "severity": "high", "count": 3, "cappedCount": 0, "pointsLost": 13 },
+        { "severity": "medium", "count": 1, "cappedCount": 0, "pointsLost": 2 },
+        { "severity": "low", "count": 0, "cappedCount": 0, "pointsLost": 0 }
       ],
       "bySeverity": { "critical": 1, "high": 3, "medium": 1, "low": 0 },
       "byCategory": { "secrets": 1, "injection": 1, "dependencies": 1, "dangerous_practices": 2 },

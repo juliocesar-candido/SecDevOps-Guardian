@@ -24,10 +24,12 @@ export interface Coverage {
 
 export interface ScanSummary {
   score: number;
-  scoreBreakdown: { severity: Severity; count: number; pointsLost: number }[];
-  bySeverity: Record<Severity, number>;
-  byCategory: Record<Category, number>;
-  byFolder: { path: string; count: number; maxSeverity: Severity }[];
+  scoreBreakdown: {
+  severity: Severity;
+  count: number;        // achados abertos dessa severidade
+  cappedCount: number;  // quantos ficaram sem penalidade pelo teto por regra
+  pointsLost: number;
+}[];
 }
 
 export interface Scan {
