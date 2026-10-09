@@ -52,7 +52,9 @@ Para evitar que 200 ocorrências do mesmo problema zerem o score:
 - Para cada `ruleId`, só os **3 primeiros** achados abertos descontam.
 - Os demais continuam listados no relatório, mas sem penalidade.
 - O teto é aplicado após ordenar por severidade e depois por arquivo/linha.
-
+- O contrato expõe `cappedCount` por severidade, e a interface deve mostrar
+  quantas ocorrências ficaram sem penalidade (ex.: "3 de 12 contadas").
+  
 ## O que NÃO afeta o score
 
 - **Veredito da IA** (`verdict`): é só um palpite de triagem. Se afetasse o
