@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "@tanstack/react-query": "^5.104.0",
-    "react-router-dom": "^7.18.4"
-  },
-  "devDependencies": {
-    "msw": "^3.0.1"
-  }
-}
