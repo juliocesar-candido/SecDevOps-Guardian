@@ -95,3 +95,8 @@ export interface ScanFixture {
   scan: Scan;
   findings: Finding[];
 }
+
+export interface FindingsPage {
+  items: Finding[];
+  nextCursor: string | null;
+}
