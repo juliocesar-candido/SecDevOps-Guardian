@@ -3,6 +3,7 @@ import { useFindingsFilters } from './hooks/useFindingsFilters'
 import { ScoreCard } from './components/ScoreCard'
 import { FindingsFilters } from './components/FindingsFilters'
 import { FindingsList } from './components/FindingsList'
+import { FindingDetail } from './components/FindingDetail'
 
 export function ReportPage({ scanId }: { scanId: string }) {
   const { data: scan, isLoading, error } = useScan(scanId)
@@ -21,6 +22,8 @@ export function ReportPage({ scanId }: { scanId: string }) {
         <FindingsFilters />
         <FindingsList scanId={scanId} filters={filters} />
       </section>
+
+      <FindingDetail />
     </main>
   )
 }

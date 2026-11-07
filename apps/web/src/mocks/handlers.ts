@@ -28,4 +28,12 @@ export const handlers = [
     )
     return HttpResponse.json({ items, nextCursor: null })
   }),
+
+    http.get('/api/findings/:id', async ({ params }) => {
+    await delay(300)
+    const finding = fixture.findings.find((f) => f.id === params.id)
+    if (!finding) return HttpResponse.json({ code: 'NOT_FOUND' }, { status: 404 })
+    return HttpResponse.json(finding)
+  }),
+  
 ]

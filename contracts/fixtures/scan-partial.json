@@ -68,8 +68,8 @@
       "owasp": ["A07:2021"],
       "location": {
         "file": "backend/config.py",
-        "startLine": 12,
-        "endLine": 12,
+        "startLine": 13,
+        "endLine": 13,
         "snippet": "import os\n\nDEBUG = False\nAWS_ACCESS_KEY_ID = \"AKIA****************\"\nAWS_REGION = \"sa-east-1\"",
         "snippetMasked": true,
         "snippetStartLine": 10
@@ -81,7 +81,7 @@
         "explanation": "Uma credencial AWS gravada no código fica no histórico do Git e pode ser usada por qualquer pessoa com acesso ao repositório. **Revogue a chave agora** e gere uma nova; apenas trocar o código não basta.",
         "fix": {
           "description": "Ler a credencial de uma variável de ambiente.",
-          "patch": "--- a/backend/config.py\n+++ b/backend/config.py\n@@ -12,1 +12,1 @@\n-AWS_ACCESS_KEY_ID = \"AKIA****************\"\n+AWS_ACCESS_KEY_ID = os.environ[\"AWS_ACCESS_KEY_ID\"]"
+          "patch": "--- a/backend/config.py\n+++ b/backend/config.py\n@@ -13,1 +13,1 @@\n-AWS_ACCESS_KEY_ID = \"AKIA****************\"\n+AWS_ACCESS_KEY_ID = os.environ[\"AWS_ACCESS_KEY_ID\"]"
         },
         "disclaimer": "Sugestão gerada por IA. Revise antes de aplicar."
       }
